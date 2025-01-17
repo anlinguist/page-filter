@@ -11,7 +11,7 @@ describe('AppController (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication({ bodyParser: false });
     await app.init();
   });
 
@@ -31,16 +31,27 @@ describe('AppController (e2e)', () => {
     expect(response.body).toHaveProperty('searchResults');
   });
 
-  it('should reject a payload over 1MB', async () => {
-    const largeHtml = 'A'.repeat(1024 * 1024 + 1);
+  it('should accept a payload at 2mb', async () => {
+    const largeHtml = 'A'.repeat(1024 * 1024 * 2);
 
     const response = await request(app.getHttpServer())
       .post('/filterDoc')
       .set('Content-Type', 'application/json')
       .send({ html: largeHtml, filter: 'test' });
 
+    expect(response.status).toBe(200);
+  });
+
+  it('should reject a payload over 5mb', async () => {
+    const tooLargeHtml = 'A'.repeat(1024 * 1024 * 5);
+
+    const response = await request(app.getHttpServer())
+      .post('/filterDoc')
+      .set('Content-Type', 'application/json')
+      .send({ html: tooLargeHtml, filter: 'test' });
+
     expect(response.status).toBe(413);
-    expect(response.body.message).toBe('request entity too large');
+    expect(response.body.message).toBe('Payload too large');
   });
 
   it('should reject a payload without html', async () => {

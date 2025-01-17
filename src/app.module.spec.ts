@@ -31,7 +31,7 @@ describe('AppModule', () => {
     const appModule: NestModule = new AppModule();
     appModule.configure(consumer);
 
-    expect(jsonMock).toHaveBeenCalledWith({ limit: '1mb' });
+    expect(jsonMock).toHaveBeenCalledWith({ limit: '5mb' });
     expect(applyMock).toHaveBeenNthCalledWith(1, expect.any(Function));
     expect(applyMock).toHaveBeenNthCalledWith(2, ValidateHtmlMiddleware);
     expect(forRoutesMock).toHaveBeenCalledWith('filterDoc');
